@@ -1,7 +1,7 @@
 Dude DiskUsageDeepExaminer
 ===========================
 
-Tool for finding biggest directories in given path list. While `du` does a perfect job finding disk space used on the first level like
+Tool for finding biggest directories or files deep in file system hierarchie of given path list. While `du` does a perfect job finding disk space used on the first level like
 
     du -cshx *
 
@@ -15,7 +15,7 @@ For example, calling
 
     dude /var/lib
 
-display 25 lines, minimum entry size 1.2M like:
+displays 25 lines (with minimum entry size `1.2MiB`) like:
 
     181.8M /var/lib/rpm
     168.1M .... /var/lib/rpm/Packages
@@ -42,6 +42,9 @@ display 25 lines, minimum entry size 1.2M like:
       1.7M ........ /var/lib/yum/yumdb/l
       3.6M /var/lib/mlocate/mlocate.db
     231.8M total
+
+All entries < `1.2MiB` are not displayed. Sub directories which are parents of displayed entries are shown only if their size minus displayed deeper entries is bigger than `1.2MiB`.
+
 
 `dude` does not cross filesystem mounts. This allows for fast check of e.g. `/` filesystem without stepping into virtual kernel filesystems or network mounts.
 
