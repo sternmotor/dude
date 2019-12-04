@@ -14,10 +14,10 @@ once, symbolic links below top level not followed, stays on one filesystem).
 On BSD/macOS, "du" does not support reading byte size disk usage (kB only), 
 thus filtering accuracy may vary for small files.
 """
-__author__ = 'dev@sternmotor.net'	# needed for error message below
+__author__ = 'dev@sternmotor.net'    # needed for error message below
 
 # commad line version without filtering, unit MiB: 
-#	du -akxHm | sort -nr | head -n 30 
+#    du -akxHm | sort -nr | head -n 30 
 
 
 # CONSTANTS and DEFAULTS ------------------------------------------------------
@@ -42,51 +42,51 @@ import sys
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument( 
-	'-n', '--lines', type=int, default=DEFAULT_LINES, 
-	help="""number of file system entries to display.  Default is to list
-	{} lines of biggest file system entries""".format(DEFAULT_LINES)
+    '-n', '--lines', type=int, default=DEFAULT_LINES, 
+    help="""number of file system entries to display.  Default is to list
+    {} lines of biggest file system entries""".format(DEFAULT_LINES)
 )
 parser.add_argument( 
-	'-l', '--list', action='store_true', 
-	help="""display result as sorted list - default is to print
-	a tree view of subfolders for better overview"""
+    '-l', '--list', action='store_true', 
+    help="""display result as sorted list - default is to print
+    a tree view of subfolders for better overview"""
 )
 parser.add_argument( 
-	'-p', '--parseable', action='store_true', 
-	help="""display results as sorted list with delimiter "\\t" for easy
-	parsing output in scripts, size unit: Byte"""
+    '-p', '--parseable', action='store_true', 
+    help="""display results as sorted list with delimiter "\\t" for easy
+    parsing output in scripts, size unit: Byte"""
 )
 parser.add_argument( 
-	'path', nargs='*', metavar='PATH', default=[DEFAULT_PATH],
-	help="""path(es) to start analysing disk usage"""
+    'path', nargs='*', metavar='PATH', default=[DEFAULT_PATH],
+    help="""path(es) to start analysing disk usage"""
 )
 parser.add_argument( 
-	'-v', '--verbose', action='count', default=0,
-	help="""script verbosity (-v: show progress, -vv: debug mode)"""
+    '-v', '--verbose', action='count', default=0,
+    help="""script verbosity (-v: show progress, -vv: debug mode)"""
 )
 args = parser.parse_args()
 
 if args.lines < 1:
-	parser.error('Minimum number of lines is 1, check LINES parameter')
+    parser.error('Minimum number of lines is 1, check LINES parameter')
 
 
 logging.basicConfig(
-	level={0:30, 1:20, 2:10}[min(2, args.verbose)],
-	format={
-		0: '%(message)s',
-		1: '* %(message)s',
-		2: '%(name)s L%(lineno)3s, %(levelname)s: %(message)s',
-	}[min(2, args.verbose)]
+    level={0:30, 1:20, 2:10}[min(2, args.verbose)],
+    format={
+        0: '%(message)s',
+        1: '* %(message)s',
+        2: '%(name)s L%(lineno)3s, %(levelname)s: %(message)s',
+    }[min(2, args.verbose)]
 )
 log = logging.getLogger(parser.prog)
 
 
 def exit_handler(signum, stack_frame=None):
-	"""Call cleanup and config reload handlers on signal"""
+    """Call cleanup and config reload handlers on signal"""
 
-	if signum in (signal.SIGINT, signal.SIGTERM): 
-		log.error('Received interrupt signal, exiting gracefully')
-	sys.exit(signum)
+    if signum in (signal.SIGINT, signal.SIGTERM): 
+        log.error('Received interrupt signal, exiting gracefully')
+    sys.exit(signum)
 
 signal.signal(signal.SIGINT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
@@ -96,370 +96,377 @@ signal.signal(signal.SIGTERM, exit_handler)
 
 
 def main(pathes, lines, scan_factor, parseable, plain):
-	"""
-	Start du run, filter results, display results.
-	Input: 
-		* pathes: list of file system entries where to start du in
-		* lines: number of lines to display
-		* scan_factor: how much more "du" result rows to aquire as 
-		  factor to specified lines (to display) - filtering usually
-		  reduces line number 
-		* parseable, plain: display modes - "tree" if both not specifed 
+    """
+    Start du run, filter results, display results.
+    Input: 
+        * pathes: list of file system entries where to start du in
+        * lines: number of lines to display
+        * scan_factor: how much more "du" result rows to aquire as 
+          factor to specified lines (to display) - filtering usually
+          reduces line number 
+        * parseable, plain: display modes - "tree" if both not specifed 
 
-	Output: none, results printed to stdout
-	"""
-	
-	du_entries, total = get_entries(pathes, lines * scan_factor)
-	log.debug('Found {1} entries, minimum size is {0}'.format(
-		  number_iso(du_entries[-1][0]), len(du_entries)))
+    Output: none, results printed to stdout
+    """
+    
+    du_entries, total = get_entries(pathes, lines * scan_factor)
+    log.debug('Found {1} entries, minimum size is {0}'.format(
+          number_iso(du_entries[-1][0]), len(du_entries)))
 
-	filtered = filter_entries(du_entries, lines)
-	log.debug('Filtered {} entries'.format(len(filtered)))
+    filtered = filter_entries(du_entries, lines)
+    log.debug('Filtered {} entries'.format(len(filtered)))
 
-	display_entries(filtered, total, parseable, plain)	
+    display_entries(filtered, total, parseable, plain)    
 
 
 def get_entries(pathes, max_lines):
-	"""
-	Run du, get number_entries of biggest fs entries and total sum of all
-	entries. Output pathes are split into segments for easier handling 
-	in filter recursion in filter_entries()
+    """
+    Run du, get number_entries of biggest fs entries and total sum of all
+    entries. Output pathes are split into segments for easier handling 
+    in filter recursion in filter_entries()
 
-	Input:
-		* pathes: list of path specifications from command line
-		* max_lines: number of biggest lines to keep - drop all other 
-		  fs entries
+    Input:
+        * pathes: list of path specifications from command line
+        * max_lines: number of biggest lines to keep - drop all other 
+          fs entries
 
-	Output tuple: (
-		list of tuples (size, path) of fs entries (sorted by size),
-		total sum of all fs entries
-	)
-	"""
+    Output tuple: (
+        list of tuples (size, path) of fs entries (sorted by size),
+        total sum of all fs entries
+    )
+    """
 
-	# self-sorting, self-size-limiting dict - see below
-	# storing in a dict with path as key provides easy deduplication
-	dict_du = fs_dict(max_lines)
+    # self-sorting, self-size-limiting dict - see below
+    # storing in a dict with path as key provides easy deduplication
+    dict_du = fs_dict(max_lines)
 
-	pathes = [os.path.normpath(p) for p in pathes]
-	for path in sorted(pathes, key=lambda x: x.lower()):
-		log.info('examining "{}"'.format(path))
+    pathes = [os.path.normpath(p) for p in pathes]
+    for path in sorted(pathes, key=lambda x: x.lower()):
+        log.info('examining "{}"'.format(path))
 
-	try:
-		for size, path in run_du(pathes):
-			dict_du[path] = size
+    try:
+        for size, path in run_du(pathes):
+            dict_du[path] = size
 
-	# unsupported option "b", read size in kB and apply correction factor
-	except GeneratorExit:
-		log.info( 'no support for reading byte size info via "du", switching ' 
-				 'to compatible options with reduced accuracy')
-		for size, path in run_du(pathes, no_bytes=True):
-			dict_du[path] = size * 1024 # bad: do it on big dict
+    # unsupported option "b", read size in kB and apply correction factor
+    except GeneratorExit:
+        log.info( 'no support for reading byte size info via "du", switching ' 
+                 'to compatible options with reduced accuracy')
+        for size, path in run_du(pathes, no_bytes=True):
+            dict_du[path] = size * 1024 # bad: do it on big dict
 
 
-	# convert dict to list, split pathes in to segments, sort by size
-	total = dict_du.pop('total')
-	entries = [(s, p.split(os.path.sep)) for p,s in dict_du.items()]
-	entries.sort(key = lambda x: x[0], reverse=True)
+    # convert dict to list, split pathes in to segments, sort by size
+    total = dict_du.pop('total')
+    entries = [(s, p.split(os.path.sep)) for p,s in dict_du.items()]
+    entries.sort(key = lambda x: x[0], reverse=True)
 
-	return entries, total
-	
+    return entries, total
+    
 
 def filter_entries(entries, lines):
-	"""
-	Find a list of exact <lines> length where intermediate directories 
-	are removed. This needs to be done iteratively, see iteration()
+    """
+    Find a list of exact <lines> length where intermediate directories 
+    are removed. This needs to be done iteratively, see iteration()
 
-	Input:
-		* entries: list of (size,path) tuples sorted by size		 
-		* lines: nuber of lines to strip entries list down to
+    Input:
+        * entries: list of (size,path) tuples sorted by size         
+        * lines: nuber of lines to strip entries list down to
 
-	Output:
-		* short list of tuples (size, path) to be displayed	
+    Output:
+        * short list of tuples (size, path) to be displayed    
 
-	Iteratively sort and filter list: run forth and back between maximum 
-	size (first element of entries) and size 0 and try to hit LINES number
-	of lines to display. 
-	This is not trivial since Applying different minsize filtering limits 
-	dynamically changes number of displayed lines (due to removing different
-	directory entries, depending on their size (see filter_minsize())
-	"""
+    Iteratively sort and filter list: run forth and back between maximum 
+    size (first element of entries) and size 0 and try to hit LINES number
+    of lines to display. 
+    This is not trivial since applying different minsize filtering limits 
+    dynamically changes number of displayed lines (due to removing different
+    directory entries, depending on their size (see filter_minsize())
+    """
 
-	maxsize = entries[0][0]
-	minsize = 1 # entries[-1][0]
-	pass_count = 0
+    maxsize = entries[0][0]
+    minsize = 1 # entries[-1][0]
+    pass_count = 0
 
-	log.debug('searching for correct minimum filter limit between {} and ' 
-			  '{}'.format(number_iso(maxsize),number_iso(minsize)))
+    log.debug('searching for correct minimum filter limit between {} and ' 
+              '{}'.format(number_iso(maxsize),number_iso(minsize)))
 
-	# run iteration
-	while True:
-		pass_count += 1
-		
-		# prepare and start current filter run
-		mean = int((maxsize + minsize) / 2 + 0.5)
-		unfiltered = [(s,p) for s,p in entries if s >= mean] 
+    # run iteration
+    while True:
+        pass_count += 1
+        
+        # prepare and start current filter run
+        mean = int((maxsize + minsize) / 2 + 0.5)
+        unfiltered = [(s,p) for s,p in entries if s >= mean] 
 
-		filtered = list(filter_minsize(unfiltered, mean))
-		params = (len(unfiltered), number_iso(mean), len(filtered)) 
-		log.debug('pass {:02d}: filtered {} entries, minimum size {} '
-			  'results in {} lines'.format(pass_count, *params))
+        filtered = list(filter_minsize(unfiltered, mean))
+        params = (len(unfiltered), number_iso(mean), len(filtered)) 
+        log.debug('pass {:02d}: filtered {} entries, minimum size {} '
+              'results in {} lines'.format(pass_count, *params))
 
-		# new start values for next loop
-		if len(filtered) > lines:
-			minsize = mean
-		elif len(filtered) < lines:
-			maxsize = mean
-		else:
-			log.debug('finished, got {} lines of output'.format(len(filtered)))
-			return filtered
+        # new start values for next loop
+        if len(filtered) > lines:
+            minsize = mean
+        elif len(filtered) < lines:
+            maxsize = mean
+        else:
+            log.debug('finished, got {} lines of output'.format(len(filtered)))
+            return filtered
 
-		# deadlock detection and handling for small files: 
-		if pass_count > 1 and params == last_params:
-			log.debug('Could not complete iteration, cheating to continue')
-			return filtered[:lines]
-		last_params = params
+        # deadlock detection and handling for small files: 
+        if pass_count > 1 and params == last_params:
+            log.debug('Could not complete iteration, cheating to continue')
+            return filtered[:lines]
+        last_params = params
 
 
 # filter printable lines out of given data for single iteration loop
 def filter_minsize(entries, minsize, depth=0):
-	"""
-	Recursively filter out bad directory entries (out of all_entries).
-	This is done by summing up all listed directory content - if the
-	rest is bigger than minsize, this directory is big enough to be listed.
-	"""
+    """
+    Recursively filter out bad directory entries (out of all_entries).
+    This is done by summing up all listed directory content - if the
+    rest is bigger than minsize, this directory is big enough to be listed.
+    """
 
-	level_entries = [(s,p) for s,p in entries if len(p) == depth + 1]
-	deep_entries = [(s,p) for s,p in entries if len(p) > depth + 1]
+    level_entries = [(s,p) for s,p in entries if len(p) == depth + 1]
+    deep_entries = [(s,p) for s,p in entries if len(p) > depth + 1]
 
-	if len(deep_entries) > 0:
-		# level and deep entries: check level entries, ...
-		if len(level_entries) > 0:
-			for level_size, level_path in level_entries:
+    if len(deep_entries) > 0:
+        # level and deep entries: check level entries, ...
+        if len(level_entries) > 0:
+            for level_size, level_path in level_entries:
 
-				# find all children starting with parent path
-				children = [(s,p) for s,p in deep_entries if p[:depth+1] == level_path[:depth+1]]
+                # find all children starting with parent path
+                children = [(s,p) for s,p in deep_entries if p[:depth+1] == level_path[:depth+1]]
 
-				# check if this entry has content of its own bigger than minsize
-				content = [(s,p) for s,p in children if len(p) == depth + 2]
-				content_size = sum([s for s,p in content])
-				if level_size - content_size >= minsize or len(content) > 1:
-					yield level_size, level_path
-		
-		# ... continue with deep inspection 
-		for entry in filter_minsize(deep_entries, minsize, depth+1):
-			yield entry
-	else:
-		# only level entries: validate level entries, finish
-		if len(level_entries) > 0:
-			for size, path in level_entries:
-				if size >= minsize:
-					yield size, path
+                # check if this entry has content of its own bigger than minsize
+                content = [(s,p) for s,p in children if len(p) == depth + 2]
+                content_size = sum([s for s,p in content])
+                if level_size - content_size >= minsize or len(content) > 1:
+                    yield level_size, level_path
+        
+        # ... continue with deep inspection 
+        for entry in filter_minsize(deep_entries, minsize, depth+1):
+            yield entry
+    else:
+        # only level entries: validate level entries, finish
+        if len(level_entries) > 0:
+            for size, path in level_entries:
+                if size >= minsize:
+                    yield size, path
 
-		# no entries at all ... what brought me here?
-		else:
-			raise RuntimeError('Internal logic error, please contact '
-					   'author "{}"'.format(__author__))
-	
+        # no entries at all ... what brought me here?
+        else:
+            raise RuntimeError('Internal logic error, please contact '
+                       'author "{}"'.format(__author__))
+    
 
-def display_entries(entries, total, parseable, plain, total_marker='total'):	
-	"""
-	Display entries in display_mode
+def display_entries(entries, total, parseable, plain, total_marker='total'):    
+    """
+    Display entries in display_mode
 
-	Input:
-		* entries: list of tuples (size, path) to be displayed	
-		* total: sum of all file system entries (including not displayed)
-		* parseable, plain: display modes - "tree" if both not specifed 
-		* total_marker: what word to print for total sum
+    Input:
+        * entries: list of tuples (size, path) to be displayed    
+        * total: sum of all file system entries (including not displayed)
+        * parseable, plain: display modes - "tree" if both not specifed 
+        * total_marker: what word to print for total sum
 
-	Output: none
-	"""
+    Output: none
+    """
 
-	# flatten pathes, sort
-	if parseable or plain:
-		entries.sort(key = lambda x: x[0], reverse=True)
-		entries = [(s, os.path.sep.join(p)) for s,p in entries]
-		entries.sort(key = lambda x: x[0], reverse=True)
-		entries.append((total, total_marker))
+    # entries need to be sorted for all views incl. tree
+    entries.sort(key = lambda x: x[0], reverse=True)
 
-	# sorted list, parseable
-	if parseable:
-		for size, path in entries:
-			print('%6s\t%s' % (size, path))
-	# sorted list
-	elif plain:
-		for size, path in entries:
-			print('%6s %s' % (number_iso(size), path))
-	# tree
-	else:
-		# prepare entries: strip of common prefix for print_tree, remove leading "./"
-		prefix = os.path.commonprefix([p for s,p in entries])
-		prefix_len = len(prefix) # speed up next loop
-		entries = [(s,p[prefix_len:]) for s,p in entries]
-		if prefix == ['.']:
-			prefix = []
-		if entries[0][1] == []:
-			del entries[0]
-		print_tree(entries, prefix)
-		print('%6s %s' % (number_iso(total), total_marker))
+    # flatten pathes, sort
+    if parseable or plain:
+        entries.sort(key = lambda x: x[0], reverse=True)
+        entries = [(s, os.path.sep.join(p)) for s,p in entries]
+        entries.sort(key = lambda x: x[0], reverse=True)
+        entries.append((total, total_marker))
+
+    # sorted list, parseable
+    if parseable:
+        for size, path in entries:
+            print('%6s\t%s' % (size, path))
+    # sorted list
+    elif plain:
+        for size, path in entries:
+            print('%6s %s' % (number_iso(size), path))
+    # tree
+    else:
+        # prepare entries: strip of common prefix for print_tree, remove leading "./"
+        prefix = os.path.commonprefix([p for s,p in entries])
+        prefix_len = len(prefix) # speed up next loop
+        entries = [(s,p[prefix_len:]) for s,p in entries]
+        if prefix == ['.']:
+            prefix = []
+        if entries[0][1] == []:
+            del entries[0]
+        print_tree(entries, prefix)
+        print('%6s %s' % (number_iso(total), total_marker))
 
 
-def print_tree(entries, prefix, depth=0, indent=0, pad_char='.', pad_width=4):
-	"""
-	Recursively print file system tree, sorted by 1.) size and 2.) depth.
-	Handle indent independently from depth for single deep-level entries 
-
-	Input:
-		* entries: list of tuples (size, path), sorted by size
-		* depth, indent: recursion counters for path and ... indent!
-		* pad: space fill between size and path for deep level entries
-
-	Output: none, results printed to stdout
-
-	This function works only with that prefix workaround - otherwise,
-	indentation was not applied at all when calling script without '.../*'
-	wildcard.
-	"""
-
-	# pad string
-	if indent is 0 or pad_width is 0:
-		pad = ''
-	elif indent > 0:
-		pad = ' {}'.format(indent * pad_width * pad_char)
-
-	# iteration
-	done = []
-	for size, path in entries:
-
-		if not path in done:
-			# handle level entry
-			print('{1:>6}{0} {2}'.format(pad, number_iso(size), os.path.sep.join(prefix + path)))
-			done.append(path)
-	
-			# handle children
-			if len(path) == depth + 1: 
-
-				# find all children starting with parent path
-				children = [(s,p) for s,p in entries if p[:depth+1] == path[:depth+1] and not p in done]
-				print_tree(children, prefix, depth+1, indent+1, pad_char, pad_width)
-				done.extend([p for s,p in children])
 
 
 # SUPPORT FUNCTIONS -----------------------------------------------------------
 
 def number_iso(num): # num in byte
-	"""Convert numbers to multiples of 1024, input: size in byte""" 
+    """Convert numbers to multiples of 1024, input: size in byte""" 
 
-	for unit in [' ', 'K','M','G','T','P','E']:
-		if abs(num) < 1000:	 # print three digits
-			return "%3.1f%s" % (num, unit)
-		else:
-			num /= 1024.0
-			continue
-	else:
-		return "%3.1f%s" % (num * 1024, unit)
+    for unit in [' ', 'K','M','G','T','P','E']:
+        if abs(num) < 1000:     # print three digits
+            return "%3.1f%s" % (num, unit)
+        else:
+            num /= 1024.0
+            continue
+    else:
+        return "%3.1f%s" % (num * 1024, unit)
 
 
 class fs_dict(dict):
-	"""
-	self-sorting, length-limit-maintaining dictionary needed for efficient
-	file system entry storage. idea from 
-	https://stackoverflow.com/questions/9054610/value-sorted-dict-for-python
-	"""
+    """
+    self-sorting, length-limit-maintaining dictionary needed for efficient
+    file system entry storage. idea from 
+    https://stackoverflow.com/questions/9054610/value-sorted-dict-for-python
+    """
 
-	def __init__(self, max_items=5):
-		self._list = []
-		self._maxlen = max_items
+    def __init__(self, max_items=5):
+        self._list = []
+        self._maxlen = max_items
 
-	def __setitem__(self, key, value):
-		# just add in case dict is shorter than _maxlen
-		if len(self._list) < self._maxlen:
-			bisect.insort(self._list, value)
-			dict.__setitem__(self, key, value)
-		# len(dict) > _maxlen:
-		else:
-			newpos = bisect.bisect_left(self._list, value)
-			# bisect position = 0 > skip
-			if newpos is 0:		# skip small value insertion
-				return
-			# bisect position > 0: remove smallest (_list[0]), then insert
-			else:
-				rem_value = self._list.pop(0)
-				rem_key = dict.keys(self)[dict.values(self).index(rem_value)]
-				dict.__delitem__(self, rem_key)
+    def __setitem__(self, key, value):
+        # just add in case dict is shorter than _maxlen
+        if len(self._list) < self._maxlen:
+            bisect.insort(self._list, value)
+            dict.__setitem__(self, key, value)
+        # len(dict) > _maxlen:
+        else:
+            newpos = bisect.bisect_left(self._list, value)
+            # bisect position = 0 > skip
+            if newpos is 0:        # skip small value insertion
+                return
+            # bisect position > 0: remove smallest (_list[0]), then insert
+            else:
+                rem_value = self._list.pop(0)
+                rem_key = dict.keys(self)[dict.values(self).index(rem_value)]
+                dict.__delitem__(self, rem_key)
 
-				bisect.insort(self._list, value)
-				dict.__setitem__(self, key, value)
+                bisect.insort(self._list, value)
+                dict.__setitem__(self, key, value)
 
 
 def run_du(pathes, no_bytes=None):
-	"""
-	Run du on all of given pathes, yield tuple (size, path) for all entries.
-	Pathes are normalized before starting du
-	Input: 
-		* pathes: list of pathes to run du in
-		* no_bytes: set to true in case du does not support "-b" option-
-		  fs entries are listed in kiB, then
-	Output: 
-		* tuple of path, size (bytes)
+    """
+    Run du on all of given pathes, yield tuple (size, path) for all entries.
+    Pathes are normalized before starting du
+    Input: 
+        * pathes: list of pathes to run du in
+        * no_bytes: set to true in case du does not support "-b" option-
+          fs entries are listed in kiB, then
+    Output: 
+        * tuple of path, size (bytes)
 
-	Error handling: error codes are ignored as long as there is output to
-		stdout. Error code 64 is signaled to caller as exception 
-		"GeneratorExit" where run_du() may be restated in "no_bytes" mode
-	"""
+    Error handling: error codes are ignored as long as there is output to
+        stdout. Error code 64 is signaled to caller as exception 
+        "GeneratorExit" where run_du() may be restated in "no_bytes" mode
+    """
 
-	if no_bytes:
-		options = '-kacHx'
-	else:
-		options = '-bacHx'
+    if no_bytes:
+        options = '-kacHx'
+    else:
+        options = '-bacHx'
 
-	line_count = 0
-	cmd = ['du', options] + pathes
-	run = subprocess.Popen(
+    line_count = 0
+    cmd = ['du', options] + pathes
+    run = subprocess.Popen(
                 cmd, env={'LANG': 'C'},
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
-	for line in run.stdout:
-		line_count += 1
-		path = line.partition('\t')[2].rstrip()
-		size = int(line.split()[0])
-		yield(size, path)
-	run.wait()
+    for line in run.stdout:
+        line_count += 1
+        path = line.partition('\t')[2].rstrip()
+        size = int(line.split()[0])
+        yield(size, path)
+    run.wait()
 
-	# no errors or soft errors - display and continue
-	if line_count > 1:
-		for line in run.stderr:
-			log.warning(line.rstrip())
+    # no errors or soft errors - display and continue
+    if line_count > 1:
+        for line in run.stderr:
+            log.warning(line.rstrip())
 
-	# command line option not supported - most likely "-b"
-	elif run.returncode == 64:
-		raise GeneratorExit
+    # command line option not supported - most likely "-b"
+    elif run.returncode == 64:
+        raise GeneratorExit
 
-	# other hard error, raise exceptoin, append stderr messages
-	elif run.returncode > 0:
-		msg = '\n    ' + '\n    '.join([l.rstrip() for l in run.stderr])
-		raise RuntimeError('Error running "{}": {}'.format(' '.join(cmd), msg))
+    # other hard error, raise exceptoin, append stderr messages
+    elif run.returncode > 0:
+        msg = '\n    ' + '\n    '.join([l.rstrip() for l in run.stderr])
+        raise RuntimeError('Error running "{}": {}'.format(' '.join(cmd), msg))
 
 
+def print_tree(entries, prefix, depth=0, indent=0, pad_char='.', pad_width=4):
+    """
+    Recursively print file system tree, sorted by 1.) size and 2.) depth.
+    Handle indent independently from depth for single deep-level entries 
+
+    Input:
+        * entries: list of tuples (size, path), sorted by size
+        * depth, indent: recursion counters for path and ... indent!
+        * pad: space fill between size and path for deep level entries
+
+    Output: none, results printed to stdout
+
+    This function works only with that prefix workaround - otherwise,
+    indentation was not applied at all when calling script without '.../*'
+    wildcard.
+    """
+
+    # pad string
+    if indent is 0 or pad_width is 0:
+        pad = ''
+    elif indent > 0:
+        pad = ' {}'.format(indent * pad_width * pad_char)
+
+    # iteration
+    done = []
+    for size, path in entries:
+
+        if not path in done:
+
+            # handle level entry
+            print('{1:>6}{0} {2}'.format(
+                    pad, number_iso(size), os.path.sep.join(prefix + path)
+                )
+            )
+            done.append(path)
+    
+            # handle children
+            if len(path) == depth + 1: 
+
+                # find all children starting with parent path
+                children = [(s,p) for s,p in entries if p[:depth+1] == path[:depth+1] and not p in done]
+                print_tree(children, prefix, depth+1, indent+1, pad_char, pad_width)
+                done.extend([p for s,p in children])
 
 # INITIATE MAIN, ERROR HANDLING -----------------------------------------------
 
 
 # start main() independent of surrounding constants and command line arguments
 try:
-	main(
-		args.path, 
-		args.lines,
-		scan_factor=SCAN_LINE_FACTOR,
-		parseable=args.parseable,
-		plain=args.list,
-	)
+    main(
+        args.path, 
+        args.lines,
+        scan_factor=SCAN_LINE_FACTOR,
+        parseable=args.parseable,
+        plain=args.list,
+    )
 except RuntimeError as Error:
-	log.error(Error)
-	exit_handler(os.EX_USAGE)
+    log.error(Error)
+    exit_handler(os.EX_USAGE)
 except Exception:
-	log.error('Unexpected script error, debug info:', exc_info=True)
-	exit_handler(os.EX_SOFTWARE)
+    log.error('Unexpected script error, debug info:', exc_info=True)
+    exit_handler(os.EX_SOFTWARE)
 else:
-	exit_handler(os.EX_OK)
+    exit_handler(os.EX_OK)
 
 # vim: ts=4:sw=4
