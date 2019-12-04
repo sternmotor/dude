@@ -15,7 +15,7 @@ For example, calling
 
     dude /var/lib
 
-yields
+display 25 lines, minimum entry size 1.2M like:
 
     181.8M /var/lib/rpm
     168.1M .... /var/lib/rpm/Packages
@@ -55,6 +55,13 @@ As a short reference, call
 
     dude -h
 
+Besides tree view, `dude` offers sorted lists of given length - human readable 
+
+    dude -ln 50 
+
+... or for parsing by e.g. monitoring scripts:
+
+    dude -pn 50
 
 
 Installation
@@ -71,6 +78,3 @@ If `curl` is not available, use `wget`:
     chmod 0755 /usr/local/bin/dude
 
 Thats it, see "Usage" section.
-
-
-
