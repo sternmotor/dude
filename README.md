@@ -43,6 +43,11 @@ yields
       3.6M /var/lib/mlocate/mlocate.db
     231.8M total
 
+`dude` does not cross filesystem mounts. This allows for fast check of e.g. `/` filesystem without stepping into virtual kernel filesystems or network mounts.
+
+Symbolic links are not followed if not specified on command line, directly.
+    
+
 Usage
 -----
 
@@ -50,16 +55,22 @@ As a short reference, call
 
     dude -h
 
+
+
 Installation
 ------------
 
 You can clone this repository or directly pull this script into `/usr/local/bin`:
 
-    
+    curl -L  https://raw.githubusercontent.com/sternmotor/dude/master/dude > /usr/local/bin/dude 
+    chmod 0755 /usr/local/bin/dude
 
+If `curl` is not available, use `wget`:
 
+    wget https://raw.githubusercontent.com/sternmotor/dude/master/dude -O /usr/local/bin/dude
+    chmod 0755 /usr/local/bin/dude
 
-
+Thats it, see "Usage" section.
 
 
 
