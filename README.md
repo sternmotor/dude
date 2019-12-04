@@ -1,7 +1,7 @@
 Dude
 ====
 
-The dude tool (**d**isk**u**sage**d**eep**e**xaminer) may be used for listing the biggest directories or files deep in file system hierarchie of given path list. While `du` does a perfect job finding disk space used on the first level like
+The dude tool (**d**isk **u**sage **d**eep **e**xaminer) may be used for listing the biggest directories or files deep in file system hierarchie of given path list.  While `du` does a perfect job finding disk space used on the first level like
 
     du -cshx *
 
@@ -53,6 +53,8 @@ Symbolic links are not followed if not specified on command line, directly.
 
 Usage
 -----
+
+This script has been successfully tested under CentOS, Debian and macOS, both python2.7 and python 3.6.
 
 As a short reference, call 
 
