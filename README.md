@@ -1,7 +1,7 @@
 Dude
 ====
 
-The dude tool (**d**isk **u**sage **d**eep **e**xaminer) may be used for listing the biggest directories or files deep in file system hierarchie of given path list.  While `du` does a perfect job finding disk space used on the first level like
+The `dude` tool (**d**isk **u**sage **d**eep **e**xaminer) may be used for listing the biggest directories or files deep in file system hierarchie of given path list.  While `du` does a perfect job finding disk space used on the first level like
 
     du -cshx *
 
@@ -15,7 +15,7 @@ For example, calling
 
     dude /var/lib
 
-displays 25 lines (with minimum entry size `1.2MiB`) like:
+displays 25 lines (here with minimum entry size `1.2MiB`) like:
 
     181.8M /var/lib/rpm
     168.1M .... /var/lib/rpm/Packages
@@ -43,7 +43,7 @@ displays 25 lines (with minimum entry size `1.2MiB`) like:
       3.6M /var/lib/mlocate/mlocate.db
     231.8M total
 
-All entries < `1.2MiB` are not displayed. Directories which are parents of displayed sub-entries are shown only if their content size (size minus displayed sub-entries) is bigger than `1.2MiB`.
+In this example, all entries < `1.2MiB` are not displayed. Directories which are parents of displayed sub-entries are shown only if their content size (size minus displayed sub-entries) is bigger than `1.2MiB`. 
 
 
 `dude` does not cross filesystem mounts. This allows for fast check of e.g. `/` filesystem without stepping into virtual kernel filesystems or network mounts.
