@@ -348,7 +348,7 @@ class fs_dict(dict):
             # bisect position > 0: remove smallest (_list[0]), then insert
             else:
                 rem_value = self._list.pop(0)
-                rem_key = dict.keys(self)[dict.values(self).index(rem_value)]
+                rem_key = list(dict.keys(self))[list(dict.values(self)).index(rem_value)]
                 dict.__delitem__(self, rem_key)
 
                 bisect.insort(self._list, value)
@@ -384,7 +384,10 @@ def run_du(pathes, no_bytes=None):
         )
     for line in run.stdout:
         line_count += 1
-        path = line.partition('\t')[2].rstrip()
+        try:
+            path = line.partition('\t')[2].rstrip()
+        except TypeError:   # python3 problem TypeError: 'str' does not support the buffer interface
+            path = line.decode().partition('\t')[2].rstrip()
         size = int(line.split()[0])
         yield(size, path)
     run.wait()
