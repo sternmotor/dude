@@ -43,7 +43,7 @@ displays 25 lines (with minimum entry size `1.2MiB`) like:
       3.6M /var/lib/mlocate/mlocate.db
     231.8M total
 
-All entries < `1.2MiB` are not displayed. Sub directories which are parents of displayed entries are shown only if their size minus displayed deeper entries is bigger than `1.2MiB`.
+All entries < `1.2MiB` are not displayed. Directories which are parents of displayed sub-entries are shown only if their content size (size minus displayed sub-entries) is bigger than `1.2MiB`.
 
 
 `dude` does not cross filesystem mounts. This allows for fast check of e.g. `/` filesystem without stepping into virtual kernel filesystems or network mounts.
