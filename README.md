@@ -1,7 +1,7 @@
-Dude DiskUsageDeepExaminer
-===========================
+Dude
+====
 
-Tool for finding biggest directories or files deep in file system hierarchie of given path list. While `du` does a perfect job finding disk space used on the first level like
+The dude tool (**d**isk**u**sage**d**eep**e**xaminer) for finding biggest directories or files deep in file system hierarchie of given path list. While `du` does a perfect job finding disk space used on the first level like
 
     du -cshx *
 
