@@ -75,13 +75,13 @@ Installation
 You can clone this repository or directly pull this script into
 `/usr/local/bin`:
 
-    curl -L  https://raw.githubusercontent.com/sternmotor/dude/master/dude >
-/usr/local/bin/dude chmod 0755 /usr/local/bin/dude
+    curl -L  https://raw.githubusercontent.com/sternmotor/dude/master/dude \
+    > /usr/local/bin/dude chmod 0755 /usr/local/bin/dude
 
 If `curl` is not available, use `wget`:
 
-    wget https://raw.githubusercontent.com/sternmotor/dude/master/dude -O
-/usr/local/bin/dude chmod 0755 /usr/local/bin/dude
+    wget https://raw.githubusercontent.com/sternmotor/dude/master/dude \
+    -O /usr/local/bin/dude chmod 0755 /usr/local/bin/dude
 
 Thats it, see "Usage" section.
 
