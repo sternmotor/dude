@@ -12,12 +12,11 @@ See "man du" for more info about du "-a,b,k,c,H,x" options (hard links counted
 once, symbolic links below top level not followed, stays on one filesystem).
 
 On BSD/macOS, "du" does not support reading byte size disk usage (kB only), 
-thus filtering accuracy may vary for small files
+thus filtering accuracy may vary for small files.
 
-Commad line alternative version without filtering, unit MiB: 
+Command line version without filtering, unit MiB: 
 
     du -akxHm | sort -nr | head -n 30 
-
 """
 __author__ = 'dev@sternmotor.net'    # needed for error message below
 
@@ -46,8 +45,8 @@ import sys
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument( 
     '-n', '--lines', type=int, default=DEFAULT_LINES, 
-    help="""number of file system entries to display.  Default is to list
-    {} lines of biggest file system entries""".format(DEFAULT_LINES)
+    help="""number of file system entries to display.  Default is to list {}
+    lines of biggest file system entries + total sum""".format(DEFAULT_LINES)
 )
 parser.add_argument( 
     '-l', '--list', action='store_true', 
@@ -103,7 +102,7 @@ def main(pathes, lines, scan_factor, parseable, plain):
     Start du run, filter results, display results.
     Input: 
         * pathes: list of file system entries where to start du in
-        * lines: number of lines to display
+        * lines: number of file system entries to display
         * scan_factor: how much more "du" result rows to aquire as 
           factor to specified lines (to display) - filtering usually
           reduces line number 
@@ -112,11 +111,11 @@ def main(pathes, lines, scan_factor, parseable, plain):
     Output: none, results printed to stdout
     """
     
-    du_entries, total = get_entries(pathes, lines * scan_factor)
+    du_entries, total = get_entries(pathes, (lines + 1)* scan_factor)
     log.debug('Found {1} entries, minimum size is {0}'.format(
           number_iso(du_entries[-1][0]), len(du_entries)))
 
-    filtered = filter_entries(du_entries, lines)
+    filtered = filter_entries(du_entries, lines + 1)
     log.debug('Filtered {} entries'.format(len(filtered)))
 
     display_entries(filtered, total, parseable, plain)    
