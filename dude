@@ -12,12 +12,15 @@ See "man du" for more info about du "-a,b,k,c,H,x" options (hard links counted
 once, symbolic links below top level not followed, stays on one filesystem).
 
 On BSD/macOS, "du" does not support reading byte size disk usage (kB only), 
-thus filtering accuracy may vary for small files.
+thus filtering accuracy may vary for small files
+
+Commad line alternative version without filtering, unit MiB: 
+
+    du -akxHm | sort -nr | head -n 30 
+
 """
 __author__ = 'dev@sternmotor.net'    # needed for error message below
 
-# commad line version without filtering, unit MiB: 
-#    du -akxHm | sort -nr | head -n 30 
 
 
 # CONSTANTS and DEFAULTS ------------------------------------------------------
@@ -25,7 +28,7 @@ __author__ = 'dev@sternmotor.net'    # needed for error message below
 # SCAN_LINE_FACTOR =3: aquire 3 x lines to have enough data for filtering
 SCAN_LINE_FACTOR = 3  
 
-DEFAULT_LINES = 25 # maximum number of entries to display
+DEFAULT_LINES = 12 # maximum number of entries to display
 DEFAULT_PATH = '.'
 
 
@@ -371,13 +374,23 @@ def run_du(pathes, no_bytes=None):
         "GeneratorExit" where run_du() may be restated in "no_bytes" mode
     """
 
+    options = [
+        '--all',
+        '--dereference-args',
+        '--one-file-system',
+        '--total',
+    ]
+
     if no_bytes:
-        options = '-kacHx'
+        options.append('--block-size=1K')
+        no_byte_factor=1024
     else:
-        options = '-bacHx'
+        options.append('--block-size=1')
+        no_byte_factor=1
+        #options.extend(['--apparent-size', '--block-size=1'])
 
     line_count = 0
-    cmd = ['du', options] + pathes
+    cmd = ['du'] + options + pathes
     run = subprocess.Popen(
                 cmd, env={'LANG': 'C'},
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -388,7 +401,7 @@ def run_du(pathes, no_bytes=None):
             path = line.partition('\t')[2].rstrip()
         except TypeError:   # python3 problem TypeError: 'str' does not support the buffer interface
             path = line.decode().partition('\t')[2].rstrip()
-        size = int(line.split()[0])
+        size = int(line.split()[0]) * no_byte_factor
         yield(size, path)
     run.wait()
 
@@ -450,6 +463,7 @@ def print_tree(entries, prefix, depth=0, indent=0, pad_char='.', pad_width=4):
                 children = [(s,p) for s,p in entries if p[:depth+1] == path[:depth+1] and not p in done]
                 print_tree(children, prefix, depth+1, indent+1, pad_char, pad_width)
                 done.extend([p for s,p in children])
+
 
 # INITIATE MAIN, ERROR HANDLING -----------------------------------------------
 
