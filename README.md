@@ -20,37 +20,25 @@ For example, calling
 
     dude /var/lib
 
-displays 25 lines (here with minimum entry size `1.2MiB`) like:
+displays 12 file system entries like:
 
-    181.8M /var/lib/rpm
-    168.1M .... /var/lib/rpm/Packages
-      5.8M .... /var/lib/rpm/Basenames
-      3.1M .... /var/lib/rpm/Providename
-      1.9M .... /var/lib/rpm/Dirnames
-      1.3M .... /var/lib/rpm/__db.003
-     30.1M /var/lib/sss
-     24.1M .... /var/lib/sss/mc
-      9.9M ........ /var/lib/sss/mc/initgroups
-      8.0M ........ /var/lib/sss/mc/passwd
-      6.1M ........ /var/lib/sss/mc/group
-      6.0M .... /var/lib/sss/db
-      2.0M ........ /var/lib/sss/db/cache_idm.xtrav.de.ldb
-      1.5M ........ /var/lib/sss/db/timestamps_idm.xtrav.de.ldb
-      1.2M ........ /var/lib/sss/db/sssd.ldb
-      1.2M ........ /var/lib/sss/db/config.ldb
-     15.7M /var/lib/yum
-      8.7M .... /var/lib/yum/history
-      4.5M ........ /var/lib/yum/history/2017-09-11
-      1.3M ............ /var/lib/yum/history/2017-09-11/7/saved_tx
-      4.1M ........ /var/lib/yum/history/history-2017-09-11.sqlite
-      6.7M .... /var/lib/yum/yumdb
-      1.7M ........ /var/lib/yum/yumdb/l
-      3.6M /var/lib/mlocate/mlocate.db
-    231.8M total
+     51.6M /var/lib/rpm
+     45.0M .... /var/lib/rpm/Packages
+      2.6M .... /var/lib/rpm/Basenames
+     31.1M /var/lib/sss
+     25.3M .... /var/lib/sss/mc
+     10.5M ........ /var/lib/sss/mc/initgroups
+      8.4M ........ /var/lib/sss/mc/passwd
+      6.3M ........ /var/lib/sss/mc/group
+      5.8M .... /var/lib/sss/db
+     16.3M /var/lib/yum/yumdb
+      6.2M /var/lib/yum/yumdb/p
+      2.6M /var/lib/yum/yumdb/l
+    102.3M total
 
-In this example, all entries < `1.2MiB` are not displayed. Directories which
+In this example, all entries < `2.6 MiB` are not displayed. Directories which
 are parents of displayed sub-entries are shown only if their content size (size
-minus displayed sub-entries) is bigger than `1.2MiB`. 
+minus displayed sub-entries) is bigger than this limit. 
 
 
 `dude` does not cross filesystem mounts. This allows for fast check of e.g. `/`
