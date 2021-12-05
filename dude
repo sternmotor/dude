@@ -437,7 +437,7 @@ def print_tree(entries, prefix, depth=0, indent=0, pad_char='.', pad_width=4):
     """
 
     # pad string
-    if indent is 0 or pad_width is 0:
+    if indent == 0 or pad_width == 0:
         pad = ''
     elif indent > 0:
         pad = ' {}'.format(indent * pad_width * pad_char)
